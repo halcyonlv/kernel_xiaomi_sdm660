@@ -2074,6 +2074,8 @@ out_unlock:
 
 static void handle_bad_sector(struct bio *bio, sector_t maxsector)
 {
+	return;
+/*
 	char b[BDEVNAME_SIZE];
 
 	/* Don't log speculative readahead beyond end of loop devices */
@@ -2085,6 +2087,7 @@ static void handle_bad_sector(struct bio *bio, sector_t maxsector)
 			    b, bio->bi_opf,
 			    (unsigned long long)bio_end_sector(bio),
 			    (long long)maxsector);
+*/
 }
 
 #ifdef CONFIG_FAIL_MAKE_REQUEST
