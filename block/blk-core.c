@@ -2072,9 +2072,13 @@ static void handle_bad_sector(struct bio *bio, sector_t maxsector)
 {
 	char b[BDEVNAME_SIZE];
 
+	/* Don't log speculative readahead beyond end of loop devices */
+	if (strncmp(bio_devname(bio, b), "loop", 4) == 0)
+		return;
+
 	pr_info_ratelimited("attempt to access beyond end of device\n"
 			    "%s: rw=%d, want=%Lu, limit=%Lu\n",
-			    bio_devname(bio, b), bio->bi_opf,
+			    b, bio->bi_opf,
 			    (unsigned long long)bio_end_sector(bio),
 			    (long long)maxsector);
 }
