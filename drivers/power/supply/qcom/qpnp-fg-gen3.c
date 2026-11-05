@@ -706,7 +706,7 @@ static bool is_batt_empty(struct fg_dev *fg)
 
 	rc = fg_get_msoc(fg, &msoc);
 	if (!rc)
-		pr_warn("batt_soc_rt_sts: %x vbatt: %d uV msoc:%d\n", status,
+		pr_warn_ratelimited("batt_soc_rt_sts: %x vbatt: %d uV msoc:%d\n", status,
 			vbatt_uv, msoc);
 
 	return ((vbatt_uv < chip->dt.cutoff_volt_mv * 1000) ? true : false);

@@ -2224,15 +2224,10 @@ static void check_usb_status(struct smb_charger *chg)
 	}
 	vbat_uv = pval.intval;
 	/*
-	 * if battery soc is 0%, vbat is below 3400mV and usb is present in
-	 * normal mode(not power-off charging mode), set online to
-	 * false to notify system to power off.
+	 * Keep report_usb_absent false so the device can charge
+	 * even when battery voltage is low or SOC is 0%.
 	 */
-	if ((usb_present == 1) && (!off_charge_flag)
-			&& (vbat_uv <= CUTOFF_VOL_THR)) {
-		chg->report_usb_absent = true;
-		power_supply_changed(chg->batt_psy);
-	}
+	chg->report_usb_absent = false;
 }
 #endif
 
@@ -5458,6 +5453,7 @@ void smblib_usb_plugin_locked(struct smb_charger *chg)
 
 	if (vbus_rising) {
 #ifdef CONFIG_MACH_MI
+		chg->report_usb_absent = false;
 		/* hold a wakeup source when charger is present */
 		vote(chg->awake_votable, CHG_AWAKE_VOTER, true, 0);
 		if (chg->boost_charge_support)
