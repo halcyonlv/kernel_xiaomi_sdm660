@@ -21,12 +21,6 @@
 #include <soc/qcom/socinfo.h>
 #include "usb-headset.h"
 
-#undef pr_debug
-#define pr_debug pr_err
-#undef dev_dbg
-#define dev_dbg dev_err
-#undef pr_info
-#define pr_info pr_err
 
 
 #define USBHS_SWITCH_AUDIO		0
@@ -150,7 +144,7 @@ static int usbhs_get_typec_state(struct usb_headset *usbhs)
 		return retval;
 	}
 
-	pr_err("%s: Type-C mode is %d\n", __func__, prop.intval);
+	pr_debug("%s: Type-C mode is %d\n", __func__, prop.intval);
 
 	if (prop.intval == POWER_SUPPLY_TYPEC_SINK_AUDIO_ADAPTER)
 		return USBHS_SWITCH_AUDIO;
@@ -173,11 +167,16 @@ static void usbhs_psy_work(struct work_struct *work)
 static int usbhs_power_supply_event(struct notifier_block *nb, unsigned long event, void *ptr)
 {
 	struct usb_headset *usbhs = container_of(nb, struct usb_headset, power_supply_notifier);
+	struct power_supply *psy = (struct power_supply *)ptr;
+
+	/* Only handle events from the USB power supply */
+	if (!psy || psy != usbhs->psy)
+		return NOTIFY_OK;
 
 	pr_debug("%s: enter\n", __func__);
 	schedule_work(&usbhs->psy_work);
 
-	return 0;
+	return NOTIFY_OK;
 }
 
 static int usbhs_parse_dt(struct device *dev, struct usb_headset *usbhs)
